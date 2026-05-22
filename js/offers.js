@@ -56,6 +56,7 @@ async function loadOffers(){
       const items = byCat[cat.id];
       return `
         <div class="stock-panel${i===0?' is-active':''}" data-cat="${escapeHTML(cat.id)}">
+          <div class="stock-cat-label">${escapeHTML(cat.name)}</div>
           <div class="data-table-wrap">
             <table class="data-table">
               <thead>
@@ -96,10 +97,38 @@ async function loadOffers(){
       btn.addEventListener('click', () => clearOfferRow(btn));
     });
     refreshOffersDirty();
+    wireOffersSearch();
+    applyOffersSearch();
   } catch(err){
     console.error('[Skinya Admin] loadOffers error:', err);
     wrap.innerHTML = '<p class="empty-row">Σφάλμα φόρτωσης</p>';
   }
+}
+
+// Search — cross-category: φιλτράρει γραμμές σε ΟΛΑ τα panels (SKU/όνομα)
+function wireOffersSearch(){
+  const inp = document.getElementById('offersSearch');
+  if(!inp || inp.dataset.wired) return;
+  inp.dataset.wired = '1';
+  inp.addEventListener('input', applyOffersSearch);
+}
+function applyOffersSearch(){
+  const wrap = document.getElementById('offersGroups');
+  if(!wrap) return;
+  const q = (document.getElementById('offersSearch')?.value || '').trim().toLowerCase();
+  wrap.classList.toggle('is-searching', !!q);
+
+  wrap.querySelectorAll('.stock-panel').forEach(panel => {
+    let shown = 0;
+    panel.querySelectorAll('tbody tr').forEach(tr => {
+      const txt = (tr.querySelector('td:nth-child(2)')?.textContent || '') + ' ' +
+                  (tr.querySelector('td:nth-child(3)')?.textContent || '');
+      const match = !q || txt.toLowerCase().includes(q);
+      tr.style.display = match ? '' : 'none';
+      if(match) shown++;
+    });
+    panel.classList.toggle('no-match', !!q && shown === 0);
+  });
 }
 
 function renderOfferRow(p){

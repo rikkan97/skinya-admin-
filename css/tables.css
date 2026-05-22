@@ -131,10 +131,14 @@
   font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:var(--text);
   margin:0 0 .5rem .2rem;
 }
-#stockGroups.is-searching .stock-tabs{display:none}
-#stockGroups.is-searching .stock-panel{display:block;margin-bottom:1.4rem}
-#stockGroups.is-searching .stock-panel.no-match{display:none}
-#stockGroups.is-searching .stock-cat-label{display:block}
+#stockGroups.is-searching .stock-tabs,
+#offersGroups.is-searching .stock-tabs{display:none}
+#stockGroups.is-searching .stock-panel,
+#offersGroups.is-searching .stock-panel{display:block;margin-bottom:1.4rem}
+#stockGroups.is-searching .stock-panel.no-match,
+#offersGroups.is-searching .stock-panel.no-match{display:none}
+#stockGroups.is-searching .stock-cat-label,
+#offersGroups.is-searching .stock-cat-label{display:block}
 
 .stock-input{
   width:90px;background:var(--bg-elev-2);
