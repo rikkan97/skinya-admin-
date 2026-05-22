@@ -7,6 +7,11 @@
   grid-template-columns:240px 1fr;
   min-height:100vh;
 }
+/* Όταν δεν υπάρχει admin session, το JS κάνει hidden=true. Χωρίς αυτόν τον
+   κανόνα το display:grid υπερισχύει του [hidden] και το dashboard shell έμενε
+   ορατό πίσω από το login. (Τα ίδια τα δεδομένα προστατεύονται ούτως ή άλλως
+   από το Supabase RLS — αυτό αφορά το UI gate.) */
+.admin-app[hidden]{display:none !important}
 
 /* ──────────────────────────────────────────────────────────────
    SIDEBAR
