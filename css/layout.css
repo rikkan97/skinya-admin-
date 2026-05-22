@@ -1,0 +1,166 @@
+/* ====================================================================
+   LAYOUT.CSS — Sidebar + topbar + main content shell
+   ==================================================================== */
+
+.admin-app{
+  display:grid;
+  grid-template-columns:240px 1fr;
+  min-height:100vh;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   SIDEBAR
+   ────────────────────────────────────────────────────────────── */
+.sidebar{
+  background:var(--bg-elev-1);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  padding:1.5rem 0;
+  position:sticky;top:0;height:100vh;
+}
+.sidebar-brand{
+  padding:0 1.5rem 1.8rem;
+  border-bottom:1px solid var(--border-soft);
+  margin-bottom:1rem;
+}
+.brand-mark{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:1.6rem;color:var(--text);font-weight:500;
+  display:block;line-height:1;
+}
+.sidebar-brand small{
+  font-size:.62rem;letter-spacing:.32em;text-transform:uppercase;
+  color:var(--accent);font-weight:600;
+  display:block;margin-top:.3rem;
+}
+
+.sidebar-nav{display:flex;flex-direction:column;gap:.15rem;padding:0 .8rem;flex:1}
+.nav-item{
+  display:flex;align-items:center;gap:.85rem;
+  padding:.7rem 1rem;border-radius:6px;
+  color:var(--text-dim);font-size:.85rem;font-weight:500;
+  transition:background .2s, color .2s;
+  position:relative;
+}
+.nav-item:hover{background:var(--bg-elev-2);color:var(--text-soft)}
+.nav-item.is-active{background:var(--bg-elev-3);color:var(--text)}
+.nav-item.is-active::before{
+  content:'';position:absolute;left:-.8rem;top:6px;bottom:6px;
+  width:3px;background:var(--accent);border-radius:0 3px 3px 0;
+}
+.nav-item svg{width:18px;height:18px;flex-shrink:0;opacity:.85}
+.nav-badge{
+  margin-left:auto;background:var(--accent);color:var(--bg);
+  font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:99px;
+  letter-spacing:.04em;
+}
+
+.sidebar-foot{padding:1rem 1.5rem;border-top:1px solid var(--border-soft)}
+.admin-user{display:flex;flex-direction:column;gap:.5rem}
+.admin-user-email{font-size:.78rem;color:var(--text-soft);word-break:break-all}
+.admin-logout{
+  background:transparent;border:1px solid var(--border);
+  color:var(--text-dim);padding:.4rem .8rem;border-radius:6px;
+  font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;font-weight:600;
+  transition:all .2s;align-self:flex-start;
+}
+.admin-logout:hover{background:rgba(217,108,108,0.12);color:var(--danger);border-color:rgba(217,108,108,0.35)}
+
+/* ──────────────────────────────────────────────────────────────
+   MAIN CONTENT
+   ────────────────────────────────────────────────────────────── */
+.main{
+  padding:2rem 2.5rem;
+  min-width:0;
+}
+
+.topbar{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:2rem;gap:1rem;
+}
+.topbar h1{font-size:1.6rem;color:var(--text)}
+.topbar-actions{display:flex;gap:.6rem}
+
+/* ──────────────────────────────────────────────────────────────
+   VIEWS — single-page navigation
+   ────────────────────────────────────────────────────────────── */
+.view{display:none;animation:fadeIn .3s ease}
+.view.is-active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ──────────────────────────────────────────────────────────────
+   FILTERS
+   ────────────────────────────────────────────────────────────── */
+.filters-row{display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:flex-end}
+.filter-select{display:flex;flex-direction:column;gap:.3rem;min-width:160px}
+.filter-select span{font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--text-dim);font-weight:600}
+.filter-select select{
+  background:var(--bg-elev-1);color:var(--text);
+  border:1px solid var(--border);border-radius:6px;
+  padding:.5rem .8rem;font-family:inherit;font-size:.85rem;
+  cursor:pointer;outline:none;
+}
+.filter-select select:focus{border-color:var(--accent)}
+.filter-select input{
+  background:var(--bg-elev-1);color:var(--text);
+  border:1px solid var(--border);border-radius:6px;
+  padding:.5rem .8rem;font-family:inherit;font-size:.85rem;
+  outline:none;min-width:240px;
+}
+.filter-select input:focus{border-color:var(--accent)}
+
+@media(max-width:960px){
+  .admin-app{grid-template-columns:1fr}
+
+  /* Sidebar → sticky top bar (brand · scrollable nav · logout) */
+  .sidebar{
+    position:sticky;top:0;z-index:50;
+    height:auto;width:100%;
+    flex-direction:row;align-items:center;gap:.6rem;
+    padding:.55rem .8rem;
+    padding-top:max(.55rem, env(safe-area-inset-top));
+    padding-left:max(.8rem, env(safe-area-inset-left));
+    padding-right:max(.8rem, env(safe-area-inset-right));
+    border-right:0;border-bottom:1px solid var(--border);
+    -webkit-backdrop-filter:saturate(1.1) blur(8px);backdrop-filter:saturate(1.1) blur(8px);
+  }
+  .sidebar-brand{
+    padding:0;margin:0;border:0;flex-shrink:0;
+  }
+  .sidebar-brand .brand-mark{font-size:1.3rem}
+  .sidebar-brand small{display:none}
+
+  .sidebar-nav{
+    flex-direction:row;flex-wrap:nowrap;flex:1;
+    overflow-x:auto;gap:.35rem;padding:0;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .sidebar-nav::-webkit-scrollbar{display:none}
+
+  .nav-item{
+    flex-shrink:0;white-space:nowrap;
+    padding:.55rem .85rem;border-radius:99px;
+    min-height:42px;
+  }
+  .nav-item svg{width:16px;height:16px}
+  .nav-item.is-active{background:var(--accent);color:var(--bg)}
+  .nav-item.is-active::before{display:none}
+  .nav-item.is-active svg{opacity:1}
+  .nav-badge{margin-left:.4rem}
+
+  /* Κρατα το logout ορατο (πριν εκρυβε ολο το foot) */
+  .sidebar-foot{
+    display:block;padding:0;margin:0;border:0;flex-shrink:0;
+  }
+  .admin-user{flex-direction:row;align-items:center;gap:0}
+  .admin-user-email{display:none}
+  .admin-logout{align-self:auto;min-height:42px;padding:.5rem .8rem}
+
+  .main{
+    padding:1.4rem;
+    padding-left:max(1.4rem, env(safe-area-inset-left));
+    padding-right:max(1.4rem, env(safe-area-inset-right));
+    padding-bottom:max(1.4rem, env(safe-area-inset-bottom));
+  }
+}

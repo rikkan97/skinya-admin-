@@ -1,0 +1,96 @@
+/* ====================================================================
+   LOGIN.CSS — Auth screen (full-page centered card)
+   ==================================================================== */
+
+.auth-screen{
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  padding:2rem;
+  background:
+    radial-gradient(60% 60% at 50% 0%, rgba(192,133,122,0.10) 0%, transparent 60%),
+    var(--bg);
+}
+.auth-screen[hidden]{display:none}
+
+.auth-card{
+  background:var(--bg-elev-1);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:2.4rem 2.2rem;
+  width:min(420px, 100%);
+  box-shadow:var(--shadow-lg);
+}
+
+.auth-brand{
+  text-align:center;margin-bottom:1.8rem;padding-bottom:1.4rem;
+  border-bottom:1px solid var(--border-soft);
+}
+.auth-brand .brand-mark{font-size:2rem}
+.brand-sub{
+  display:block;margin-top:.3rem;
+  font-size:.62rem;letter-spacing:.32em;text-transform:uppercase;
+  color:var(--accent);font-weight:600;
+}
+
+.adm-field{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem}
+.adm-field span{
+  font-size:.62rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--text-dim);font-weight:600;
+}
+.adm-field input, .adm-field textarea, .adm-field select{
+  background:var(--bg-elev-2);
+  border:1px solid var(--border);border-radius:6px;
+  padding:.65rem .85rem;
+  font-family:inherit;font-size:.9rem;
+  color:var(--text);outline:none;
+  transition:border-color .2s;
+}
+.adm-field input:focus, .adm-field textarea:focus, .adm-field select:focus{border-color:var(--accent)}
+.adm-field input::placeholder{color:var(--text-dim);opacity:.6}
+
+#loginForm .btn-primary,
+#forgotForm .btn-primary,
+#resetForm .btn-primary{width:100%;margin-top:.5rem}
+
+/* Forgot/back link κάτω από τη φόρμα */
+.auth-link{
+  display:block;width:100%;margin-top:.9rem;
+  background:none;border:0;cursor:pointer;
+  font-family:inherit;font-size:.78rem;
+  color:var(--text-dim);text-align:center;
+  transition:color .2s;
+}
+.auth-link:hover{color:var(--accent)}
+
+/* Επεξηγηματικό κείμενο σε forgot/reset */
+.auth-hint{
+  margin:0 0 1.2rem;font-size:.84rem;line-height:1.5;
+  color:var(--text-soft);text-align:center;
+}
+
+[data-auth-panel][hidden]{display:none}
+
+/* Password field με «ματάκι» show/hide */
+.pw-wrap{position:relative;display:flex}
+.pw-wrap input{flex:1;width:100%;padding-right:2.6rem}
+.pw-toggle{
+  position:absolute;right:.35rem;top:50%;transform:translateY(-50%);
+  background:none;border:0;cursor:pointer;padding:.35rem;
+  display:inline-flex;align-items:center;justify-content:center;
+  color:var(--text-dim);transition:color .2s;
+}
+.pw-toggle:hover{color:var(--accent)}
+.pw-toggle svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.pw-toggle .pw-eye-off{display:none}
+.pw-toggle.is-on .pw-eye{display:none}
+.pw-toggle.is-on .pw-eye-off{display:inline}
+
+.auth-error{
+  color:var(--danger);font-size:.82rem;
+  text-align:center;margin:.6rem 0 0;min-height:1.2em;
+}
+
+.auth-foot{
+  text-align:center;margin-top:1.4rem;
+  font-size:.74rem;color:var(--text-dim);font-style:italic;
+}

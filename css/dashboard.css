@@ -1,0 +1,40 @@
+/* ====================================================================
+   DASHBOARD.CSS — Stats cards + panels
+   ==================================================================== */
+
+.stats-grid{
+  display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+  gap:1rem;margin-bottom:2.4rem;
+}
+.stat-card{
+  background:var(--bg-elev-1);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:1.3rem 1.4rem;
+  transition:border-color .25s;
+}
+.stat-card:hover{border-color:var(--text-dim)}
+.stat-card small{
+  font-size:.62rem;letter-spacing:.26em;text-transform:uppercase;
+  color:var(--text-dim);font-weight:600;
+  display:block;margin-bottom:.6rem;
+}
+.stat-card strong{
+  font-family:'Cormorant Garamond',serif;font-weight:500;
+  font-size:2rem;color:var(--text);
+  display:block;line-height:1.1;letter-spacing:-.01em;
+}
+.stat-card.stat-warn strong{color:var(--warn)}
+
+.dashboard-panel{
+  background:var(--bg-elev-1);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:1.5rem;
+}
+.panel-head{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:1rem;padding-bottom:1rem;
+  border-bottom:1px solid var(--border-soft);
+}
+.panel-head h2{font-size:1.15rem}

@@ -1,0 +1,343 @@
+/* ====================================================================
+   FORMS.CSS — Admin forms (product edit, coupon create, etc.)
+   ==================================================================== */
+
+.adm-form{display:flex;flex-direction:column;gap:1rem;margin-top:1rem}
+.adm-form-row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.adm-form-row--3{grid-template-columns:1fr 1fr 1fr}
+
+/* Info tooltip (info icon δίπλα σε field label) */
+.info-tip{
+  position:relative;display:inline-flex;align-items:center;justify-content:center;
+  width:14px;height:14px;margin-left:.4rem;
+  border:1px solid var(--text-dim);border-radius:50%;
+  color:var(--text-dim);background:transparent;
+  font-family:'Inter',sans-serif;font-size:.6rem;font-weight:600;font-style:normal;
+  letter-spacing:0;text-transform:none;
+  cursor:help;transition:color .15s, border-color .15s;
+  vertical-align:middle;
+}
+.info-tip:hover{color:var(--accent);border-color:var(--accent)}
+.info-tip::after{
+  content:attr(data-tip);
+  position:absolute;bottom:calc(100% + 8px);left:-2px;transform:none;
+  background:var(--bg-elev-3);color:var(--text-soft);
+  border:1px solid var(--border);border-radius:6px;
+  padding:.55rem .75rem;
+  font-family:'Inter',sans-serif;font-size:.72rem;font-weight:400;
+  letter-spacing:.02em;text-transform:none;line-height:1.4;
+  width:max-content;max-width:220px;text-align:left;white-space:normal;
+  box-shadow:var(--shadow-md);
+  opacity:0;pointer-events:none;
+  transition:opacity .15s;
+  z-index:10;
+}
+.info-tip:hover::after{opacity:1}
+/* Variant: tooltip κάτω από το εικονίδιο — για κεφαλίδες πινάκων, όπου ο χώρος από πάνω κόβεται από το overflow */
+.info-tip--down::after{bottom:auto;top:calc(100% + 8px)}
+
+.adm-form textarea{resize:vertical;min-height:80px;font-family:inherit}
+.adm-form .adm-field--full{grid-column:1/-1}
+
+/* Date / datetime inputs — dark native picker + accent calendar icon */
+.date-input{color-scheme:dark}
+.date-input::-webkit-calendar-picker-indicator{
+  filter:invert(64%) sepia(18%) saturate(900%) hue-rotate(316deg) brightness(92%);  /* ~accent terracotta */
+  cursor:pointer;opacity:.85;transition:opacity .15s;
+}
+.date-input::-webkit-calendar-picker-indicator:hover{opacity:1}
+
+/* Quick-preset chips κάτω από το date input */
+.date-presets{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.55rem}
+.date-presets button{
+  background:var(--bg-elev-3);border:1px solid var(--border);
+  color:var(--text-soft);
+  font-family:'Inter',sans-serif;font-size:.7rem;font-weight:500;letter-spacing:.04em;
+  padding:.4rem .7rem;border-radius:99px;cursor:pointer;
+  transition:all .15s;
+}
+.date-presets button:hover{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.date-presets .date-preset--clear:hover{background:var(--bg-elev-2);color:var(--danger);border-color:rgba(217,108,108,0.4)}
+
+.adm-form-foot{
+  display:flex;justify-content:flex-end;gap:.6rem;
+  margin-top:1rem;padding-top:1rem;
+  border-top:1px solid var(--border-soft);
+}
+
+/* Order modal specific */
+.order-modal-head{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  margin-bottom:1.2rem;padding-bottom:1rem;
+  border-bottom:1px solid var(--border-soft);
+  gap:1rem;flex-wrap:wrap;
+}
+.order-modal-head h2{font-size:1.4rem;color:var(--text)}
+.order-modal-head small{
+  font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--text-dim);display:block;margin-bottom:.3rem;
+}
+
+/* Shipping block (μεταφορική + tracking) μέσα στο order modal */
+.shipping-block{
+  margin:0 0 1.5rem;padding:1rem 1.2rem;
+  background:var(--bg-elev-2);border:1px solid var(--border);border-radius:8px;
+}
+.shipping-block[hidden]{display:none}
+.status-save-btn{margin-top:.55rem;width:100%}
+.status-save-btn[hidden]{display:none}
+.ship-title{
+  display:block;font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--accent);font-weight:600;margin-bottom:.7rem;
+}
+.ship-actions{display:flex;align-items:center;gap:.8rem;margin-top:.5rem;flex-wrap:wrap}
+.ship-sent{font-size:.8rem;color:var(--text-dim)}
+
+.order-meta-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;
+  margin-bottom:1.5rem;
+}
+.order-meta-grid > div{
+  background:var(--bg-elev-2);padding:.85rem 1rem;border-radius:6px;
+}
+.order-meta-grid small{
+  font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--text-dim);font-weight:600;display:block;margin-bottom:.25rem;
+}
+.order-meta-grid p{margin:0;color:var(--text-soft);font-size:.9rem;line-height:1.4;white-space:pre-wrap}
+
+.order-items-list{
+  list-style:none;margin:0;padding:0;
+  border:1px solid var(--border);border-radius:6px;overflow:hidden;
+}
+.order-items-list li{
+  display:grid;grid-template-columns:48px 1fr auto;gap:.85rem;
+  padding:.85rem 1rem;border-bottom:1px solid var(--border-soft);align-items:center;
+}
+.order-items-list li:last-child{border-bottom:0}
+
+.order-totals-box{
+  margin-top:1rem;padding:1rem;background:var(--bg-elev-2);border-radius:6px;
+}
+.order-totals-box > div{display:flex;justify-content:space-between;padding:.2rem 0;font-size:.88rem}
+.order-totals-box .grand{
+  border-top:1px solid var(--border);margin-top:.3rem;padding-top:.5rem;
+  font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:500;color:var(--text);
+}
+
+@media(max-width:600px){
+  .adm-form-row, .adm-form-row--3{grid-template-columns:1fr}
+  .order-meta-grid{grid-template-columns:1fr}
+}
+
+/* ====================================================================
+   UI TABS (Site UI + Products category nav)
+   ==================================================================== */
+.ui-tabs{
+  display:flex;flex-wrap:wrap;gap:.4rem;
+  margin-bottom:1.5rem;padding-bottom:1rem;
+  border-bottom:1px solid var(--border-soft);
+}
+.ui-tab{
+  background:transparent;border:1px solid var(--border);cursor:pointer;
+  font-family:'Inter',sans-serif;font-size:.78rem;
+  letter-spacing:.06em;font-weight:500;
+  color:var(--text-soft);
+  padding:.55rem .95rem;border-radius:99px;
+  display:inline-flex;align-items:center;gap:.5rem;
+  transition:all .18s;
+}
+.ui-tab:hover{background:var(--bg-elev-2);color:var(--text);border-color:var(--text-dim)}
+.ui-tab.is-active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+
+/* sub-tabs (inside Shop Αρχικής) — smaller, no underline */
+.ui-subtabs{
+  display:flex;gap:.4rem;flex-wrap:wrap;
+  background:var(--bg-elev-1);
+  border:1px solid var(--border);border-radius:8px;
+  padding:.4rem;margin-bottom:1.2rem;
+}
+.ui-subtab{
+  background:transparent;border:0;cursor:pointer;
+  font-family:'Inter',sans-serif;font-size:.7rem;
+  letter-spacing:.16em;text-transform:uppercase;font-weight:600;
+  color:var(--text-dim);
+  padding:.55rem .9rem;border-radius:6px;
+  transition:background .2s, color .2s;
+}
+.ui-subtab:hover{color:var(--text-soft)}
+.ui-subtab.is-active{background:var(--bg-elev-3);color:var(--text)}
+
+.ui-pane-wrap{
+  background:var(--bg-elev-1);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:1.5rem;
+  min-height:300px;
+}
+
+/* ====================================================================
+   SITE UI · Sections grid + editor
+   ==================================================================== */
+.sections-grid{
+  display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
+  gap:1rem;
+}
+.sec-card{
+  background:var(--bg-elev-1);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:1.1rem 1.2rem;
+  cursor:pointer;
+  transition:border-color .2s, transform .2s;
+}
+.sec-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.sec-card header{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  gap:.5rem;margin-bottom:.85rem;
+}
+.sec-card h3{font-size:.95rem;line-height:1.3;font-family:'Inter',sans-serif;font-weight:600;color:var(--text)}
+.sec-count{
+  background:var(--bg-elev-3);color:var(--text-soft);
+  font-size:.7rem;padding:.2rem .55rem;border-radius:99px;font-weight:600;
+  white-space:nowrap;
+}
+.sec-thumbs{display:flex;gap:.35rem;flex-wrap:wrap;min-height:42px;margin-bottom:.85rem}
+.sec-thumb{
+  width:38px;height:38px;border-radius:6px;
+  background:var(--bg-elev-3);overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  color:var(--text-dim);font-size:.85rem;flex-shrink:0;
+}
+.sec-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.sec-thumb--lg{width:54px;height:54px;font-size:1rem}
+.sec-card footer{
+  display:flex;justify-content:space-between;
+  padding-top:.7rem;border-top:1px solid var(--border-soft);
+  font-size:.7rem;color:var(--text-dim);
+}
+
+/* Items list inside editor */
+.sec-items-list{list-style:none;margin:0 0 1rem;padding:0;display:flex;flex-direction:column;gap:.5rem}
+.sec-item{
+  display:grid;grid-template-columns:auto 54px 1fr auto;gap:.85rem;align-items:center;
+  background:var(--bg-elev-2);
+  border:1px solid var(--border);border-radius:6px;
+  padding:.6rem .8rem;
+}
+.sec-item--missing{background:rgba(217,108,108,0.06);border-color:rgba(217,108,108,0.25)}
+.sec-handle{color:var(--text-dim);font-size:1.1rem;cursor:grab;user-select:none}
+.sec-info{display:flex;flex-direction:column;gap:.15rem;min-width:0}
+.sec-info small{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.sec-info strong{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:1rem;color:var(--text);line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sec-actions{display:flex;gap:.25rem}
+.sec-mv, .sec-rm{
+  background:var(--bg-elev-3);border:1px solid var(--border);
+  color:var(--text-soft);width:30px;height:30px;
+  border-radius:5px;cursor:pointer;font-size:.95rem;
+  display:inline-flex;align-items:center;justify-content:center;
+}
+.sec-mv:hover{background:var(--bg-elev-1);color:var(--text)}
+.sec-rm:hover{background:rgba(217,108,108,0.18);color:var(--danger);border-color:rgba(217,108,108,0.4)}
+.sec-empty{
+  background:transparent;border:1px dashed var(--border);
+  padding:1.4rem;text-align:center;color:var(--text-dim);font-style:italic;
+  border-radius:6px;
+}
+
+/* Search input + dropdown */
+.sec-search-wrap{margin-top:.4rem;position:relative}
+.sec-search{
+  width:100%;background:var(--bg-elev-2);
+  border:1px solid var(--border);border-radius:6px;
+  padding:.6rem .9rem;font-family:inherit;font-size:.9rem;
+  color:var(--text);outline:none;
+  transition:border-color .2s;
+}
+.sec-search:focus{border-color:var(--accent)}
+.sec-search-results{
+  position:absolute;left:0;right:0;top:calc(100% + 4px);
+  background:var(--bg-elev-1);
+  border:1px solid var(--border);border-radius:6px;
+  max-height:280px;overflow-y:auto;z-index:10;
+  box-shadow:var(--shadow-md);
+}
+.sec-search-row{
+  width:100%;display:grid;grid-template-columns:38px 1fr auto;gap:.7rem;align-items:center;
+  background:transparent;border:0;cursor:pointer;
+  padding:.55rem .8rem;
+  border-bottom:1px solid var(--border-soft);
+  color:var(--text);text-align:left;font-family:inherit;
+  transition:background .15s;
+}
+.sec-search-row:last-child{border-bottom:0}
+.sec-search-row:hover{background:var(--bg-elev-2)}
+.sec-add-ic{
+  width:26px;height:26px;border-radius:5px;
+  background:rgba(192,133,122,0.15);color:var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;font-weight:600;
+}
+.sec-search-empty{padding:1rem;text-align:center;color:var(--text-dim);font-style:italic;font-size:.85rem}
+
+/* ====================================================================
+   IMG UPLOAD WIDGET (φόρμες προϊόντος / founder photo)
+   ==================================================================== */
+.img-upload{
+  display:grid;grid-template-columns:96px 1fr;gap:.85rem;align-items:center;
+  background:var(--bg-elev-2);
+  border:1px solid var(--border);border-radius:6px;
+  padding:.7rem;
+}
+.img-upload-preview{
+  width:96px;height:96px;border-radius:6px;
+  background:var(--bg-elev-3);overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text-dim);font-size:.7rem;text-align:center;padding:.3rem;
+}
+.img-upload-preview img{width:100%;height:100%;object-fit:cover;display:block}
+.img-upload-controls{display:flex;flex-direction:column;gap:.45rem;min-width:0}
+.img-upload-controls input[type="file"]{
+  font-family:inherit;font-size:.8rem;color:var(--text-soft);
+  background:transparent;border:0;padding:0;
+}
+.img-upload-controls input[type="file"]::file-selector-button{
+  background:var(--bg-elev-3);color:var(--text);
+  border:1px solid var(--border);border-radius:5px;
+  padding:.4rem .8rem;font-family:inherit;font-size:.78rem;
+  letter-spacing:.06em;cursor:pointer;margin-right:.6rem;
+  transition:background .15s, border-color .15s;
+}
+.img-upload-controls input[type="file"]::file-selector-button:hover{
+  background:var(--bg-elev-1);border-color:var(--accent);
+}
+.img-upload-status{font-size:.72rem;color:var(--text-dim);min-height:1em}
+.img-upload-status.is-error{color:var(--danger)}
+.img-upload-status.is-ok{color:var(--accent)}
+.img-upload-clear{
+  align-self:flex-start;
+  background:transparent;border:0;color:var(--text-dim);
+  font-size:.72rem;cursor:pointer;padding:0;text-decoration:underline;
+}
+.img-upload-clear:hover{color:var(--danger)}
+
+/* Founders editor */
+.founder-row{
+  display:grid;grid-template-columns:120px 1fr;gap:1.2rem;
+  background:var(--bg-elev-2);
+  border:1px solid var(--border);border-radius:6px;
+  padding:1rem;margin-bottom:1rem;
+}
+.founder-photo{
+  width:120px;height:160px;border-radius:6px;
+  background:var(--bg-elev-3);overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+}
+.founder-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.founder-fields{display:flex;flex-direction:column;gap:.7rem;min-width:0}
+@media(max-width:560px){
+  .founder-row{grid-template-columns:1fr}
+  .founder-photo{width:100%;height:180px}
+  .sec-item{grid-template-columns:auto 44px 1fr auto;gap:.5rem}
+}

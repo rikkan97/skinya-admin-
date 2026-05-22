@@ -1,0 +1,145 @@
+/* ====================================================================
+   RESPONSIVE.CSS — Mobile / tablet refinements (Android + iOS)
+   Φορτώνεται ΤΕΛΕΥΤΑΙΟ → υπερισχύει όπου χρειάζεται.
+   Καλύπτει: portrait + landscape, iOS notch/home-indicator (safe-area),
+   Safari address-bar (dvh), iOS input-zoom, touch targets ≥42px.
+   ==================================================================== */
+
+/* ── iOS Safari: dynamic viewport height (address bar safe) ───────── */
+@supports (height:100dvh){
+  .admin-app{min-height:100dvh}
+  .auth-screen{min-height:100dvh}
+}
+
+/* Momentum scroll για τα tables που κυλουν οριζοντια (iOS) */
+.data-table-wrap{-webkit-overflow-scrolling:touch}
+
+/* Μη επιτρεπεις σε εικονες/περιεχομενο να σπανε το layout */
+img{max-width:100%}
+
+/* ── TABLET & μικρα laptop (≤960) ─────────────────────────────────── */
+@media(max-width:960px){
+  .topbar{flex-wrap:wrap;margin-bottom:1.4rem}
+  .topbar h1{font-size:1.4rem}
+  .topbar-actions{flex-wrap:wrap}
+  .sections-grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+}
+
+/* ── PHONE (≤640) ─────────────────────────────────────────────────── */
+@media(max-width:640px){
+
+  /* iOS: αποτρεπει zoom στο focus — το font-size ΠΡΕΠΕΙ να ειναι ≥16px */
+  .adm-field input, .adm-field textarea, .adm-field select,
+  .filter-select select, .filter-select input,
+  .stock-input, .offer-input-wrap input, .status-select,
+  .sec-search{
+    font-size:16px;
+  }
+
+  /* Topbar: τιτλος πανω, actions full-width απο κατω */
+  .topbar{gap:.8rem;margin-bottom:1.25rem}
+  .topbar-actions{width:100%}
+  .topbar-actions .btn-primary,
+  .topbar-actions .btn-ghost{flex:1 1 auto;justify-content:center;min-height:44px}
+
+  /* Filters full width */
+  .filters-row{gap:.8rem}
+  .filter-select{min-width:0;width:100%}
+  .filter-select select,
+  .filter-select input{min-width:0;width:100%;min-height:44px}
+
+  /* Dashboard stats: 2 στηλες ανετα */
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:.7rem;margin-bottom:1.6rem}
+  .stat-card{padding:1rem 1.05rem}
+  .stat-card strong{font-size:1.55rem}
+  .dashboard-panel{padding:1.1rem}
+
+  /* Tables: λιγο πιο compact + ευκολο tap στα row buttons */
+  .data-table{font-size:.82rem}
+  .data-table thead th,.data-table tbody td{padding:.7rem .8rem}
+  .data-table .row-btn{padding:.5rem .8rem;margin-left:.25rem}
+  .data-table .col-actions{white-space:nowrap}
+
+  /* Tabs (Stock/Offers/Products/Site UI) → ΜΙΑ σειρα με horizontal swipe
+     αντι για wrapping σε πολλες σειρες (8+ κατηγοριες) */
+  .stock-tabs,.ui-tabs{
+    flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none;
+    scroll-snap-type:x proximity;
+    -webkit-mask-image:linear-gradient(90deg,transparent,#000 14px,#000 calc(100% - 14px),transparent);
+            mask-image:linear-gradient(90deg,transparent,#000 14px,#000 calc(100% - 14px),transparent);
+  }
+  .stock-tabs::-webkit-scrollbar,.ui-tabs::-webkit-scrollbar{display:none}
+  .stock-tab,.ui-tab{min-height:40px;flex:0 0 auto;scroll-snap-align:start;white-space:nowrap}
+
+  /* Modal forms: ολες οι 2/3-col σειρες → 1 στηλη μεσα στο bottom-sheet */
+  .adm-form-row,.adm-form-row--3{grid-template-columns:1fr}
+  .order-meta-grid{grid-template-columns:1fr}
+
+  /* Offers: μεγαλυτερο tap target στο ✕ + ευκολη επεξεργασια */
+  .offer-clear{min-width:36px;min-height:36px}
+  .offer-input-wrap input{min-height:40px}
+
+  /* info-tip tooltip: να ΜΗΝ ξεφευγει εκτος οθονης σε στενο πλατος */
+  .info-tip::after{max-width:min(240px,68vw)}
+
+  /* ── MODAL → bottom-sheet (πιο φυσικο σε κινητο) ── */
+  .modal-overlay{padding:0;align-items:flex-end}
+  .modal-panel{
+    width:100%;max-width:100%;
+    max-height:92vh;
+    border-radius:16px 16px 0 0;
+    padding:1.5rem 1.15rem;
+    padding-bottom:max(1.5rem, env(safe-area-inset-bottom));
+  }
+  .modal-close{top:.55rem;right:.6rem;font-size:1.35rem;padding:.55rem .8rem}
+
+  /* Φορμες: μεγαλυτερα tap πεδια */
+  .adm-field input,.adm-field select,.adm-form textarea{min-height:44px}
+  .adm-form-foot{flex-direction:column-reverse;gap:.6rem}
+  .adm-form-foot .btn-primary,.adm-form-foot .btn-ghost{width:100%;min-height:46px}
+
+  /* Site UI sections: μια στηλη */
+  .sections-grid{grid-template-columns:1fr}
+
+  /* Toast πανω απο το home-indicator */
+  .toast{bottom:max(1.5rem, env(safe-area-inset-bottom));max-width:92vw}
+
+  /* Login card */
+  .auth-screen{padding:1.25rem;padding-bottom:max(1.25rem,env(safe-area-inset-bottom))}
+  .auth-card{padding:2rem 1.5rem}
+}
+
+/* ── ΜΙΚΡΟ PHONE (≤400) ───────────────────────────────────────────── */
+@media(max-width:400px){
+  .stats-grid{grid-template-columns:1fr}
+  .main{padding:1.05rem;padding-left:max(1.05rem,env(safe-area-inset-left));padding-right:max(1.05rem,env(safe-area-inset-right))}
+  .topbar h1{font-size:1.3rem}
+}
+
+/* ── LANDSCAPE κινητου (χαμηλο υψος) ──────────────────────────────── */
+@media(max-height:500px) and (orientation:landscape){
+  /* Login: μη κεντραρεις καθετα — αφησε το να κυλαει */
+  .auth-screen{align-items:flex-start;overflow-y:auto;padding:1.1rem}
+  .auth-card{margin:auto}
+
+  /* Modal: ξανα κεντραρισμενο (το bottom-sheet δεν χωραει σε landscape) */
+  .modal-overlay{align-items:center;padding:.8rem}
+  .modal-panel{
+    max-height:94vh;border-radius:14px;
+    padding:1.25rem 1.2rem;
+  }
+  .adm-form-foot{flex-direction:row;justify-content:flex-end}
+  .adm-form-foot .btn-primary,.adm-form-foot .btn-ghost{width:auto}
+
+  /* Stats σε μια σειρα αξιοποιωντας το πλατος */
+  .stats-grid{grid-template-columns:repeat(4,1fr)}
+}
+
+/* ── Σεβασμος στο reduce-motion (iOS/Android accessibility) ───────── */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms !important;
+    transition-duration:.001ms !important;
+  }
+}

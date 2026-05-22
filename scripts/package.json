@@ -1,0 +1,14 @@
+{
+  "name": "skinya-admin-scripts",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "migrate:dry": "node migrate-images.mjs --dry",
+    "migrate": "node migrate-images.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "sharp": "^0.33.5"
+  }
+}

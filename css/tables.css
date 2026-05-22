@@ -1,0 +1,189 @@
+/* ====================================================================
+   TABLES.CSS — Data tables (orders, products, customers, coupons)
+   ==================================================================== */
+
+.data-table-wrap{
+  background:var(--bg-elev-1);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  overflow-x:auto;
+}
+.data-table{
+  width:100%;border-collapse:collapse;
+  font-size:.85rem;
+}
+.data-table thead th{
+  text-align:left;
+  padding:.85rem 1rem;
+  font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--text-dim);font-weight:600;
+  border-bottom:1px solid var(--border);
+  background:var(--bg-elev-2);
+  white-space:nowrap;
+}
+.data-table tbody td{
+  padding:.85rem 1rem;
+  border-bottom:1px solid var(--border-soft);
+  color:var(--text-soft);
+  vertical-align:middle;
+}
+.data-table tbody tr:hover{background:rgba(255,255,255,0.02)}
+.data-table tbody tr:last-child td{border-bottom:0}
+
+.data-table .col-thumb{width:48px;padding-right:0}
+.data-table .thumb{
+  width:40px;height:40px;border-radius:6px;
+  background:var(--bg-elev-3);overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  color:var(--text-dim);font-size:.85rem;
+}
+.data-table .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+
+.data-table .col-actions{text-align:right;white-space:nowrap}
+.data-table .row-btn{
+  background:transparent;border:1px solid var(--border);
+  color:var(--text-soft);padding:.35rem .7rem;
+  font-size:.7rem;font-weight:500;letter-spacing:.06em;
+  border-radius:6px;cursor:pointer;
+  transition:all .2s;
+  margin-left:.3rem;
+}
+.data-table .row-btn:hover{background:var(--bg-elev-2);color:var(--text);border-color:var(--text-dim)}
+.data-table .row-btn--danger:hover{color:var(--danger);border-color:rgba(217,108,108,0.35)}
+
+.empty-row{text-align:center;color:var(--text-dim);font-style:italic;padding:2rem 1rem !important}
+
+/* Status badges */
+.status-badge{
+  display:inline-block;padding:.3rem .7rem;border-radius:99px;
+  font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;font-weight:600;
+  background:var(--bg-elev-3);color:var(--text-soft);
+}
+.status-pending{background:rgba(212,164,92,0.16);color:var(--warn)}
+.status-paid{background:rgba(76,175,122,0.16);color:var(--success)}
+.status-processing{background:rgba(212,164,92,0.16);color:var(--warn)}
+.status-shipped{background:rgba(91,142,181,0.18);color:var(--info)}
+.status-delivered{background:rgba(76,175,122,0.18);color:var(--success)}
+.status-cancelled{background:rgba(217,108,108,0.18);color:var(--danger)}
+.status-refunded{background:rgba(212,164,92,0.16);color:var(--warn)}
+
+.guest-tag{
+  display:inline-block;margin-left:.4rem;padding:.12rem .5rem;border-radius:99px;
+  font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;font-weight:600;
+  background:rgba(91,142,181,0.18);color:var(--info);vertical-align:middle;
+}
+
+.status-select{
+  background:var(--bg-elev-2);border:1px solid var(--border);
+  color:var(--text);border-radius:6px;padding:.3rem .5rem;
+  font-size:.78rem;font-family:inherit;cursor:pointer;
+}
+
+/* Boolean indicators */
+.bool-yes{color:var(--success);font-weight:600}
+.bool-no{color:var(--text-dim)}
+
+/* Best of Category αστερι διπλα στο ονομα */
+.feat-star{color:var(--gold);font-size:.85rem;margin-left:.15rem;vertical-align:middle}
+
+/* ──────────────────────────────────────────────────────────────
+   STOCK VIEW — top tab nav + per-category panels
+   ────────────────────────────────────────────────────────────── */
+.stock-tabs{
+  display:flex;flex-wrap:wrap;gap:.4rem;
+  margin-bottom:1.2rem;padding-bottom:1rem;
+  border-bottom:1px solid var(--border-soft);
+}
+.stock-tab{
+  background:transparent;border:1px solid var(--border);
+  color:var(--text-soft);padding:.55rem .95rem;
+  font-family:inherit;font-size:.78rem;font-weight:500;
+  letter-spacing:.06em;border-radius:99px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:.5rem;
+  transition:all .18s;
+}
+.stock-tab:hover{background:var(--bg-elev-2);color:var(--text);border-color:var(--text-dim)}
+.stock-tab.is-active{
+  background:var(--accent);color:var(--bg);border-color:var(--accent);
+}
+.stock-tab.is-active .stock-count{
+  background:rgba(0,0,0,0.18);color:var(--bg);border-color:transparent;
+}
+.stock-tab.has-dirty:not(.is-active){
+  border-color:var(--warn);color:var(--warn);
+}
+
+.stock-count{
+  font-family:'Inter',sans-serif;font-size:.6rem;
+  letter-spacing:.14em;text-transform:uppercase;font-weight:600;
+  color:var(--text-dim);background:var(--bg-elev-2);
+  border:1px solid var(--border);border-radius:99px;
+  padding:.15rem .55rem;line-height:1;
+}
+
+.stock-panel{display:none}
+.stock-panel.is-active{display:block}
+
+/* Κατηγορία label — ορατό μόνο σε λειτουργία αναζήτησης (cross-category) */
+.stock-cat-label{
+  display:none;
+  font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:var(--text);
+  margin:0 0 .5rem .2rem;
+}
+#stockGroups.is-searching .stock-tabs{display:none}
+#stockGroups.is-searching .stock-panel{display:block;margin-bottom:1.4rem}
+#stockGroups.is-searching .stock-panel.no-match{display:none}
+#stockGroups.is-searching .stock-cat-label{display:block}
+
+.stock-input{
+  width:90px;background:var(--bg-elev-2);
+  border:1px solid var(--border);border-radius:6px;
+  color:var(--text);padding:.4rem .55rem;
+  font-family:inherit;font-size:.85rem;text-align:center;
+  transition:border-color .15s, background .15s;
+}
+.stock-input:focus{outline:none;border-color:var(--accent)}
+.stock-input.is-dirty{
+  border-color:var(--warn);
+  background:rgba(212,164,92,0.08);
+}
+
+/* ──────────────────────────────────────────────────────────────
+   OFFERS VIEW — % / € inputs with suffix
+   ────────────────────────────────────────────────────────────── */
+.offer-input-wrap{
+  position:relative;display:flex;align-items:center;
+  background:var(--bg-elev-2);
+  border:1px solid var(--border);border-radius:6px;
+  transition:border-color .15s, background .15s;
+}
+.offer-input-wrap:focus-within{border-color:var(--accent)}
+.offer-input-wrap input{
+  flex:1;min-width:0;
+  background:transparent;border:0;outline:none;
+  color:var(--text);padding:.4rem .35rem .4rem .55rem;
+  font-family:inherit;font-size:.85rem;text-align:right;
+}
+.offer-input-wrap input::-webkit-outer-spin-button,
+.offer-input-wrap input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.offer-input-wrap input[type=number]{-moz-appearance:textfield}
+.offer-suffix{
+  padding:0 .55rem 0 .15rem;
+  color:var(--text-dim);font-size:.78rem;
+  pointer-events:none;
+}
+
+.data-table tr.is-dirty .offer-input-wrap{
+  border-color:var(--warn);
+  background:rgba(212,164,92,0.08);
+}
+
+.offer-clear{
+  background:transparent;border:1px solid var(--border);
+  color:var(--text-dim);width:28px;height:28px;
+  border-radius:5px;cursor:pointer;font-size:.8rem;
+  display:inline-flex;align-items:center;justify-content:center;
+  transition:all .15s;padding:0;
+}
+.offer-clear:hover{color:var(--danger);border-color:rgba(217,108,108,0.4);background:rgba(217,108,108,0.08)}
