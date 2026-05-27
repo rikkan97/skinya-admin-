@@ -99,9 +99,52 @@ async function loadStock(){
     refreshStockDirty();
     wireStockSearch();
     applyStockSearch();
+    subscribeStockRealtime();   // live updates όταν δημιουργούνται παραγγελίες
   } catch(err){
     console.error('[Skinya Admin] loadStock error:', err);
     wrap.innerHTML = '<p class="empty-row">Σφάλμα φόρτωσης</p>';
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Realtime subscription — products UPDATE → live stock updates
+// ─────────────────────────────────────────────────────────────
+// Όταν δημιουργείται παραγγελία στο public site, η create_order RPC
+// κάνει atomic decrement στο stock. Εδώ ακούμε αυτές τις αλλαγές και
+// ενημερώνουμε τα inputs χωρίς refresh. Αν ο admin είναι σε edit
+// (is-dirty), σεβόμαστε την επεξεργασία του και ενημερώνουμε μόνο
+// το data-original (με stale indicator).
+let _stockChannel = null;
+
+function subscribeStockRealtime(){
+  if(_stockChannel) return;  // ένα channel αρκεί για όλη τη ζωή της σελίδας
+  _stockChannel = window.sb.channel('admin-stock-live')
+    .on('postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'products' },
+        payload => onStockRealtimeUpdate(payload.new))
+    .subscribe();
+}
+
+function onStockRealtimeUpdate(row){
+  if(!row || !row.id) return;
+  const inp = document.querySelector(`.stock-input[data-id="${row.id}"]`);
+  if(!inp) return;
+  const newStock = String(row.stock ?? 0);
+  if(inp.dataset.original === newStock && inp.value === newStock) return;  // no-op
+
+  if(inp.classList.contains('is-dirty')){
+    // Ο admin πληκτρολογεί — μην αλλάξεις την τιμή του. Απλά ενημέρωσε
+    // το "original" για να ξέρει ότι η βάση άλλαξε από κάτω του.
+    inp.dataset.original = newStock;
+    inp.classList.add('is-stale');
+    setTimeout(()=> inp.classList.remove('is-stale'), 2200);
+    refreshStockDirty();
+  } else {
+    // Free input — απλό live update + flash.
+    inp.value = newStock;
+    inp.dataset.original = newStock;
+    inp.classList.add('is-flash');
+    setTimeout(()=> inp.classList.remove('is-flash'), 1200);
   }
 }
 

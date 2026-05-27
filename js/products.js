@@ -230,6 +230,14 @@ function renderProductForm(p){
         <textarea name="description" rows="4">${escapeHTML(p?.description||'')}</textarea>
       </label>
 
+      <label class="adm-field"><span>Βοηθάει (max 3 bullets — μία γραμμή ανά bullet) ${fieldTip('Μέχρι 3 σύντομα bullets που εμφανίζονται στο expandable "Μάθε περισσότερα" της κάρτας. Μία γραμμή ανά bullet. Π.χ.\n• Προστατεύει από UVA/UVB (SPF50+)\n• Αφήνει φυσικό φινίρισμα χωρίς λευκές ίχνες\n• Ενυδατώνει & λειτουργεί ως βάση για μακιγιάζ')}</span>
+        <textarea name="benefits" rows="3" placeholder="Μία γραμμή ανά bullet, max 3.">${escapeHTML((p?.benefits||[]).join('\n'))}</textarea>
+      </label>
+
+      <label class="adm-field"><span>Tip (μία γραμμή) ${fieldTip('Σύντομη συμβουλή χρήσης που εμφανίζεται κάτω από τα bullets στο expandable. Π.χ. «Εφάρμοσέ το κάθε πρωί ως τελευταίο βήμα skincare».')}</span>
+        <input type="text" name="tip" value="${escapeHTML(p?.tip||'')}" placeholder="π.χ. Εφάρμοσέ το κάθε πρωί ως τελευταίο βήμα skincare">
+      </label>
+
       <label class="adm-field"><span>Badges (χωρισμένα με κόμμα) ${fieldTip('Ετικέτες χωρισμένες με κόμμα, π.χ. cruelty-free, vegan, viral. Εμφανίζονται ως σφραγίδες πάνω στην εικόνα.')}</span>
         <input type="text" name="badges" value="${(p?.badges||[]).join(', ')}" placeholder="cruelty-free, vegan, viral">
       </label>
@@ -301,6 +309,7 @@ async function saveProduct(e, productId){
     }
 
     const badgesStr = fd.get('badges')?.toString() || '';
+    const benefitsStr = fd.get('benefits')?.toString() || '';
     const payload = {
       sku:            fd.get('sku')?.toString().trim(),
       name:           fd.get('name')?.toString().trim(),
@@ -315,6 +324,8 @@ async function saveProduct(e, productId){
       tech_name:      fd.get('tech_name')?.toString().trim() || null,
       tech_desc:      fd.get('tech_desc')?.toString().trim() || null,
       description:    fd.get('description')?.toString().trim() || null,
+      benefits:       benefitsStr.split(/\r?\n/).map(s=>s.replace(/^[\s•\-*]+/, '').trim()).filter(Boolean).slice(0, 3),
+      tip:            fd.get('tip')?.toString().trim() || null,
       badges:         badgesStr.split(',').map(b=>b.trim()).filter(Boolean),
       is_active:      !!fd.get('is_active'),
       is_featured:    !!fd.get('is_featured')

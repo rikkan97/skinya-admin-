@@ -20,20 +20,35 @@ async function loadCoupons(){
       return;
     }
 
-    tbody.innerHTML = data.map(c => `
-      <tr>
+    const now = new Date();
+    tbody.innerHTML = data.map(c => {
+      // Effective status — όχι μόνο is_active, αλλά και λήξη/εξάντληση
+      const expired   = c.valid_until && new Date(c.valid_until) < now;
+      const exhausted = c.max_uses != null && (c.uses_count || 0) >= c.max_uses;
+      const usable    = !!c.is_active && !expired && !exhausted;
+      let statusHTML;
+      if(usable){
+        statusHTML = '✓';
+      } else {
+        let reason = 'Ανενεργό';
+        if(expired)        reason = 'Έληξε';
+        else if(exhausted) reason = 'Εξαντλήθηκε';
+        statusHTML = `X / ${reason}`;
+      }
+      return `
+      <tr${expired?' class="row-expired"':''}>
         <td><strong>${escapeHTML(c.code)}</strong></td>
         <td class="muted">${c.discount_kind === 'percentage' ? 'Ποσοστό' : 'Σταθερό'}</td>
         <td>${c.discount_kind === 'percentage' ? c.discount_value + '%' : fmtMoney(c.discount_value)}</td>
         <td>${c.uses_count || 0}${c.max_uses ? '/'+c.max_uses : ''}</td>
         <td class="muted">${c.valid_until ? fmtDate(c.valid_until) : '—'}</td>
-        <td class="${c.is_active ? 'bool-yes' : 'bool-no'}">${c.is_active ? '✓' : '○'}</td>
+        <td class="${usable ? 'bool-yes' : 'bool-no'}">${statusHTML}</td>
         <td class="col-actions">
           <button class="row-btn" onclick="openCouponModal('${c.id}')">Edit</button>
           <button class="row-btn row-btn--danger" onclick="deleteCoupon('${c.id}','${escapeHTML(c.code)}')">Delete</button>
         </td>
-      </tr>
-    `).join('');
+      </tr>`;
+    }).join('');
   } catch(err){
     console.error('[Skinya Admin] loadCoupons error:', err);
     tbody.innerHTML = '<tr><td colspan="7" class="empty-row">Σφάλμα φόρτωσης</td></tr>';

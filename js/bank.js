@@ -40,7 +40,7 @@ async function saveBank(e){
       bank_holder: fd.get('bank_holder')?.trim() || null,
       bank_iban:   fd.get('bank_iban')?.trim().replace(/\s+/g,' ') || null,
       bank_swift:  fd.get('bank_swift')?.trim()  || null,
-      bank_note:   null,
+      bank_note:   null,                  // το πεδίο δεν χρησιμοποιείται πια στο checkout
       updated_at:  new Date().toISOString()
     };
     const { error } = await window.sb.from('store_settings').upsert(payload, { onConflict: 'id' });

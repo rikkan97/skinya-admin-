@@ -106,7 +106,9 @@ function renderSectionPane(){
   ` : '';
 
   let bodyHtml;
-  if(s.kind === 'founders'){
+  if(s.id === 'products_header'){
+    bodyHtml = renderProductsHeaderBody(s);
+  } else if(s.kind === 'founders'){
     bodyHtml = renderFoundersBody(s);
   } else {
     bodyHtml = renderProductListBody(s);
@@ -523,6 +525,156 @@ function updateSectionDiscount(value){
   }
   const pct = Math.max(0, Math.min(50, Number(value) || 0));
   _editingSection.config.discount = pct / 100;
+}
+
+// ──────────────────────────────────────────────────────────────
+// PRODUCTS HEADER (shop page) — 3 fixed slots: Αριστερά / Κέντρο / Δεξιά
+// Items array: [{slot, sku, tag, brand?, label?}, ...] με σταθερή σειρά L/C/R
+// ──────────────────────────────────────────────────────────────
+const PH_SLOTS = ['left', 'center', 'right'];
+const PH_SLOT_LABELS = { left: 'Αριστερά', center: 'Κέντρο', right: 'Δεξιά' };
+
+// Εξασφάλιση ότι το items array έχει ΑΚΡΙΒΩΣ 3 στοιχεία στη σωστή σειρά
+function ensureHeaderSlots(s){
+  const bySlot = {};
+  for(const it of (s.items||[])){
+    if(it && it.slot && PH_SLOTS.includes(it.slot)){ bySlot[it.slot] = it; }
+  }
+  s.items = PH_SLOTS.map((slot, idx) => {
+    const fromSlot = bySlot[slot];
+    const fromIdx  = (s.items && s.items[idx]) ? s.items[idx] : null;
+    const base = fromSlot || fromIdx || { sku: '' };
+    return { ...base, slot };
+  });
+}
+
+function renderProductsHeaderBody(s){
+  ensureHeaderSlots(s);
+  return `
+    <p class="muted" style="font-size:.78rem;margin:0 0 1rem">
+      Διαμόρφωσε τα 3 προϊόντα που εμφανίζονται στο header της σελίδας Shop.
+      Αλλάζεις προϊόν, marketing tag, και (προαιρετικά) short brand/label για το mini-label της κάρτας.
+    </p>
+    <div class="header-slots">
+      ${PH_SLOTS.map((slot, idx) => renderHeaderSlot(slot, idx, s.items[idx])).join('')}
+    </div>
+  `;
+}
+
+function renderHeaderSlot(slot, idx, it){
+  const p = findProductBySku(it.sku);
+  const isCenter = slot === 'center';
+  const prodInfo = p
+    ? `<small>${escapeHTML(p.brand?.name||'')} · ${escapeHTML(p.sku)}</small>
+       <strong>${escapeHTML(p.name)}</strong>`
+    : `<strong style="color:var(--warn,#d96c6c)">⚠ Δεν έχει επιλεγεί προϊόν</strong>
+       <small>${it.sku ? 'Άγνωστο SKU: ' + escapeHTML(it.sku) : 'Κάνε κλικ «Επιλογή»'}</small>`;
+  const thumb = p?.img
+    ? `<img src="${escapeHTML(p.img)}" alt="">`
+    : (p?.brand?.name || '?').charAt(0);
+  const brandPlaceholder = escapeHTML(p?.brand?.name || '');
+  const labelPlaceholder = escapeHTML(p?.name || '');
+
+  return `
+    <div class="header-slot" data-slot="${slot}">
+      <div class="header-slot-head">
+        <span class="header-slot-label">${PH_SLOT_LABELS[slot]}</span>
+        ${isCenter ? '<span class="header-slot-badge">κύρια κάρτα</span>' : ''}
+      </div>
+
+      <div class="header-slot-product">
+        <div class="sec-thumb sec-thumb--lg">${thumb}</div>
+        <div class="sec-info">${prodInfo}</div>
+        <button type="button" class="btn-ghost btn-sm" onclick="toggleHeaderSlotPicker('${slot}')">${p ? 'Αλλαγή' : 'Επιλογή'}</button>
+      </div>
+
+      <div class="header-slot-picker" id="hdrPicker-${slot}" hidden>
+        <input type="text" class="sec-search" placeholder="Αναζήτηση SKU / όνομα / brand…"
+               oninput="filterHeaderSlotPicker('${slot}', this.value)" aria-label="Αναζήτηση προϊόντος">
+        <div class="sec-search-results" id="hdrPickerResults-${slot}"></div>
+      </div>
+
+      <div class="adm-form-row" style="margin-top:.75rem">
+        <label class="adm-field"><span>Marketing tag ${fieldTip('Η μικρή επιγραφή πάνω από την εικόνα, π.χ. «★ Cult Favorite», «★ Best Seller · TikTok Viral».')}</span>
+          <input type="text" value="${escapeHTML(it.tag || '')}" placeholder="★ Cult Favorite"
+                 oninput="updateHeaderSlotField('${slot}','tag',this.value)">
+        </label>
+      </div>
+
+      ${!isCenter ? `
+        <div class="adm-form-row">
+          <label class="adm-field"><span>Brand (short) ${fieldTip('Προαιρετικό short label αντί για το πλήρες όνομα του brand, π.χ. «BoJ» αντί για «Beauty of Joseon». Κενό = full brand name.')}</span>
+            <input type="text" value="${escapeHTML(it.brand || '')}" placeholder="${brandPlaceholder}"
+                   oninput="updateHeaderSlotField('${slot}','brand',this.value)">
+          </label>
+          <label class="adm-field"><span>Label (short) ${fieldTip('Προαιρετικό short label αντί για το πλήρες όνομα του προϊόντος, π.χ. «Snail 96» αντί για «Advanced Snail 96 Mucin Power Essence». Κενό = full product name.')}</span>
+            <input type="text" value="${escapeHTML(it.label || '')}" placeholder="${labelPlaceholder}"
+                   oninput="updateHeaderSlotField('${slot}','label',this.value)">
+          </label>
+        </div>
+      ` : '<p class="muted" style="font-size:.72rem;margin:.5rem 0 0;font-style:italic">Η κεντρική κάρτα δεν έχει mini-label.</p>'}
+    </div>
+  `;
+}
+
+function updateHeaderSlotField(slot, field, value){
+  if(!_editingSection) return;
+  const idx = PH_SLOTS.indexOf(slot);
+  if(idx < 0) return;
+  if(!_editingSection.items[idx]) _editingSection.items[idx] = { slot };
+  _editingSection.items[idx][field] = value;
+}
+
+function toggleHeaderSlotPicker(slot){
+  const picker = document.getElementById('hdrPicker-' + slot);
+  if(!picker) return;
+  const wasHidden = picker.hidden;
+  // Κλείσε όλους τους άλλους pickers
+  PH_SLOTS.forEach(s => {
+    const el = document.getElementById('hdrPicker-' + s);
+    if(el) el.hidden = true;
+  });
+  picker.hidden = !wasHidden;
+  if(!picker.hidden){
+    const input = picker.querySelector('input.sec-search');
+    if(input){ input.value = ''; input.focus(); }
+    const results = picker.querySelector('.sec-search-results');
+    if(results) results.innerHTML = '';
+  }
+}
+
+function filterHeaderSlotPicker(slot, q){
+  const results = document.getElementById('hdrPickerResults-' + slot);
+  if(!results) return;
+  const query = (q||'').trim().toLowerCase();
+  if(!query){ results.innerHTML = ''; return; }
+  const matches = (_allProductsCache||[]).filter(p => {
+    const hay = `${p.sku} ${p.name} ${p.brand?.name||''}`.toLowerCase();
+    return hay.includes(query);
+  }).slice(0, 8);
+  if(matches.length === 0){
+    results.innerHTML = '<div class="sec-search-empty">Κανένα αποτέλεσμα</div>';
+    return;
+  }
+  results.innerHTML = matches.map(p => `
+    <button type="button" class="sec-search-row" onclick="applyHeaderSlotProduct('${slot}','${p.sku}')">
+      <div class="sec-thumb">${p.img ? `<img src="${escapeHTML(p.img)}" alt="">` : (p.brand?.name||'').charAt(0)}</div>
+      <div class="sec-info">
+        <small>${escapeHTML(p.brand?.name||'')} · ${escapeHTML(p.sku)}</small>
+        <strong>${escapeHTML(p.name)}</strong>
+      </div>
+      <span class="sec-add-ic">+</span>
+    </button>
+  `).join('');
+}
+
+function applyHeaderSlotProduct(slot, sku){
+  if(!_editingSection) return;
+  const idx = PH_SLOTS.indexOf(slot);
+  if(idx < 0) return;
+  if(!_editingSection.items[idx]) _editingSection.items[idx] = { slot };
+  _editingSection.items[idx].sku = sku;
+  renderSectionPane();
 }
 
 // ──────────────────────────────────────────────────────────────
