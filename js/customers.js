@@ -7,8 +7,10 @@ let _customersCache = [];
 // Μετράμε με ΕΜΑΙΛ (όχι με customer_id) ώστε να πιάνουμε και τις guest παραγγελίες
 // (customer_id = null) που ανήκουν στο ίδιο email με τον λογαριασμό.
 let _ordersByEmail = {};
+// Newsletter-only subscribers (πίνακας newsletter_subscribers) — emails χωρίς account.
+// Αυτοί προστίθενται ως «synthetic» rows στο tab «Newsletter μόνο».
+let _newsletterOnlyCache = [];
 // Ενεργό tab: 'all' | 'buyers' | 'newsletter-only'.
-// «Newsletter μόνο» = newsletter=true ΚΑΙ 0 παραγγελίες — proxy για «εγγραφή χωρίς αγορά».
 let _customersTab = 'all';
 
 async function loadCustomers(){
@@ -17,18 +19,24 @@ async function loadCustomers(){
   tbody.innerHTML = '<tr><td colspan="8" class="empty-row">Φόρτωση…</td></tr>';
 
   try {
-    const [custRes, ordersRes] = await Promise.all([
+    const [custRes, ordersRes, newsRes] = await Promise.all([
       window.sb
         .from('customers')
         .select('id, email, first_name, last_name, phone, role, newsletter, created_at')
         .order('created_at', { ascending: false }),
       window.sb
         .from('orders')
-        .select('customer_email, total, status')
+        .select('customer_email, total, status'),
+      window.sb
+        .from('newsletter_subscribers')
+        .select('email, source, subscribed_at, unsubscribed_at')
+        .is('unsubscribed_at', null)
+        .order('subscribed_at', { ascending: false })
     ]);
 
     if(custRes.error) throw custRes.error;
     if(ordersRes.error) console.warn('[Skinya Admin] loadCustomers orders error:', ordersRes.error);
+    if(newsRes.error) console.warn('[Skinya Admin] newsletter_subscribers error:', newsRes.error);
 
     // Aggregate παραγγελιών ανά email — εξαιρούμε cancelled/refunded (όπως πριν)
     _ordersByEmail = {};
@@ -42,6 +50,25 @@ async function loadCustomers(){
     }
 
     _customersCache = custRes.data || [];
+
+    // Newsletter-only: από το newsletter_subscribers, κρατάμε όσους ΔΕΝ έχουν customer row
+    // (αλλιώς θα ήταν διπλοεγγραφές στη λίστα).
+    const customerEmails = new Set(_customersCache.map(c => (c.email || '').trim().toLowerCase()));
+    _newsletterOnlyCache = (newsRes.data || [])
+      .filter(s => s.email && !customerEmails.has(s.email.trim().toLowerCase()))
+      .map(s => ({
+        id: 'newsletter:' + s.email,
+        email: s.email,
+        first_name: null,
+        last_name: null,
+        phone: null,
+        role: 'customer',
+        newsletter: true,
+        created_at: s.subscribed_at,
+        _newsletterOnly: true,            // flag για render
+        _source: s.source || 'homepage'
+      }));
+
     renderCustomers(_customersCache, document.getElementById('customersSearch')?.value || '');
   } catch(err){
     console.error('[Skinya Admin] loadCustomers error:', err);
@@ -54,13 +81,15 @@ function ordersCountFor(c){
 }
 
 function updateCustomersTabCounts(list){
-  const all = list.length;
-  let buyers = 0, newsletterOnly = 0;
+  let buyers = 0, custNewsletterNoOrders = 0;
   for(const c of list){
     const n = ordersCountFor(c);
     if(n > 0) buyers++;
-    if(c.newsletter && n === 0) newsletterOnly++;
+    if(c.newsletter && n === 0) custNewsletterNoOrders++;
   }
+  // Newsletter μόνο = εγγραφές χωρίς account + customers με newsletter αλλά καμία παραγγελία
+  const newsletterOnly = custNewsletterNoOrders + _newsletterOnlyCache.length;
+  const all = list.length + _newsletterOnlyCache.length;
   const elAll = document.getElementById('custCountAll');
   const elBuy = document.getElementById('custCountBuyers');
   const elNew = document.getElementById('custCountNewsletter');
@@ -75,7 +104,12 @@ function renderCustomers(list, query){
 
   updateCustomersTabCounts(list);
 
-  const tabFiltered = list.filter(c => {
+  // Newsletter-only synthetics: φαίνονται στο tab "Όλοι" και στο "Newsletter μόνο"
+  const withSynthetics = (_customersTab === 'buyers')
+    ? list
+    : list.concat(_newsletterOnlyCache);
+
+  const tabFiltered = withSynthetics.filter(c => {
     if(_customersTab === 'all') return true;
     const n = ordersCountFor(c);
     if(_customersTab === 'buyers') return n > 0;
@@ -110,12 +144,15 @@ function renderCustomers(list, query){
     const agg = _ordersByEmail[(c.email || '').trim().toLowerCase()] || { count:0, total:0 };
     const ordersCount = agg.count;
     const ordersTotal = agg.total;
+    const roleCell = c._newsletterOnly
+      ? '<span class="muted" title="Εγγραφή μόνο σε newsletter, χωρίς account">newsletter</span>'
+      : (c.role === 'admin' ? '<span class="status-badge status-paid">admin</span>' : '<span class="muted">customer</span>');
     return `
       <tr>
         <td><strong>${escapeHTML(c.email)}</strong></td>
         <td>${escapeHTML(fullName)}</td>
         <td class="muted">${escapeHTML(c.phone || '—')}</td>
-        <td>${c.role === 'admin' ? '<span class="status-badge status-paid">admin</span>' : '<span class="muted">customer</span>'}</td>
+        <td>${roleCell}</td>
         <td class="${c.newsletter ? 'bool-yes' : 'bool-no'}">${c.newsletter ? '✓' : '○'}</td>
         <td>${ordersCount}</td>
         <td>${fmtMoney(ordersTotal)}</td>
