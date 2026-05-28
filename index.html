@@ -243,6 +243,17 @@
     </div>
 
     <div class="view" data-view="customers">
+      <div class="stock-tabs" id="customersTabs" role="tablist" aria-label="Φίλτρο πελατών">
+        <button type="button" class="stock-tab is-active" data-cust-tab="all" role="tab" aria-selected="true">
+          Όλοι <span class="stock-count" id="custCountAll">0</span>
+        </button>
+        <button type="button" class="stock-tab" data-cust-tab="buyers" role="tab" aria-selected="false">
+          Πελάτες <span class="stock-count" id="custCountBuyers">0</span>
+        </button>
+        <button type="button" class="stock-tab" data-cust-tab="newsletter-only" role="tab" aria-selected="false" title="Έχουν συγκατάθεση για newsletter αλλά καμία παραγγελία">
+          Newsletter μόνο <span class="stock-count" id="custCountNewsletter">0</span>
+        </button>
+      </div>
       <div class="filters-row">
         <label class="filter-select">
           <span>Αναζήτηση</span>

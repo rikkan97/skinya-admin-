@@ -7,6 +7,9 @@ let _customersCache = [];
 // Μετράμε με ΕΜΑΙΛ (όχι με customer_id) ώστε να πιάνουμε και τις guest παραγγελίες
 // (customer_id = null) που ανήκουν στο ίδιο email με τον λογαριασμό.
 let _ordersByEmail = {};
+// Ενεργό tab: 'all' | 'buyers' | 'newsletter-only'.
+// «Newsletter μόνο» = newsletter=true ΚΑΙ 0 παραγγελίες — proxy για «εγγραφή χωρίς αγορά».
+let _customersTab = 'all';
 
 async function loadCustomers(){
   const tbody = document.querySelector('#customersTable tbody');
@@ -46,13 +49,43 @@ async function loadCustomers(){
   }
 }
 
+function ordersCountFor(c){
+  return (_ordersByEmail[(c.email || '').trim().toLowerCase()] || { count:0 }).count;
+}
+
+function updateCustomersTabCounts(list){
+  const all = list.length;
+  let buyers = 0, newsletterOnly = 0;
+  for(const c of list){
+    const n = ordersCountFor(c);
+    if(n > 0) buyers++;
+    if(c.newsletter && n === 0) newsletterOnly++;
+  }
+  const elAll = document.getElementById('custCountAll');
+  const elBuy = document.getElementById('custCountBuyers');
+  const elNew = document.getElementById('custCountNewsletter');
+  if(elAll) elAll.textContent = all;
+  if(elBuy) elBuy.textContent = buyers;
+  if(elNew) elNew.textContent = newsletterOnly;
+}
+
 function renderCustomers(list, query){
   const tbody = document.querySelector('#customersTable tbody');
   if(!tbody) return;
 
+  updateCustomersTabCounts(list);
+
+  const tabFiltered = list.filter(c => {
+    if(_customersTab === 'all') return true;
+    const n = ordersCountFor(c);
+    if(_customersTab === 'buyers') return n > 0;
+    if(_customersTab === 'newsletter-only') return c.newsletter && n === 0;
+    return true;
+  });
+
   const q = (query || '').trim().toLowerCase();
   const filtered = q
-    ? list.filter(c => {
+    ? tabFiltered.filter(c => {
         const fullName = [c.first_name, c.last_name].filter(Boolean).join(' ').toLowerCase();
         return (
           (c.email || '').toLowerCase().includes(q) ||
@@ -60,10 +93,15 @@ function renderCustomers(list, query){
           (c.phone || '').toLowerCase().includes(q)
         );
       })
-    : list;
+    : tabFiltered;
 
   if(filtered.length === 0){
-    tbody.innerHTML = `<tr><td colspan="8" class="empty-row">${q ? 'Κανένα αποτέλεσμα' : 'Κανένας πελάτης'}</td></tr>`;
+    const emptyMsg = q
+      ? 'Κανένα αποτέλεσμα'
+      : (_customersTab === 'newsletter-only' ? 'Κανείς εγγεγραμμένος μόνο σε newsletter'
+         : _customersTab === 'buyers' ? 'Κανείς πελάτης με παραγγελία'
+         : 'Κανένας πελάτης');
+    tbody.innerHTML = `<tr><td colspan="8" class="empty-row">${emptyMsg}</td></tr>`;
     return;
   }
 
@@ -87,13 +125,29 @@ function renderCustomers(list, query){
   }).join('');
 }
 
-// Wire up search input (debounced)
+// Wire up search input (debounced) + tab buttons (All / Buyers / Newsletter-only)
 document.addEventListener('DOMContentLoaded', () => {
   const input = document.getElementById('customersSearch');
-  if(!input) return;
-  let t;
-  input.addEventListener('input', () => {
-    clearTimeout(t);
-    t = setTimeout(() => renderCustomers(_customersCache, input.value), 120);
-  });
+  if(input){
+    let t;
+    input.addEventListener('input', () => {
+      clearTimeout(t);
+      t = setTimeout(() => renderCustomers(_customersCache, input.value), 120);
+    });
+  }
+
+  const tabs = document.getElementById('customersTabs');
+  if(tabs){
+    tabs.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-cust-tab]');
+      if(!btn) return;
+      _customersTab = btn.dataset.custTab;
+      tabs.querySelectorAll('[data-cust-tab]').forEach(b => {
+        const on = b === btn;
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      renderCustomers(_customersCache, document.getElementById('customersSearch')?.value || '');
+    });
+  }
 });
