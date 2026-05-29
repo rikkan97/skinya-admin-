@@ -80,16 +80,29 @@ function ordersCountFor(c){
   return (_ordersByEmail[(c.email || '').trim().toLowerCase()] || { count:0 }).count;
 }
 
-function updateCustomersTabCounts(list){
-  let buyers = 0, custNewsletterNoOrders = 0;
-  for(const c of list){
-    const n = ordersCountFor(c);
-    if(n > 0) buyers++;
-    if(c.newsletter && n === 0) custNewsletterNoOrders++;
+// Single source of truth για το ποιες γραμμές ανήκουν σε κάθε tab.
+// Χρησιμοποιείται ΚΑΙ από το count ΚΑΙ από το filter — δεν θέλουμε counts/render να διαφέρουν.
+function tabMatches(c, tab){
+  if(tab === 'all') return true;
+  const n = ordersCountFor(c);
+  if(tab === 'buyers'){
+    // Synthetic newsletter-only rows ΔΕΝ θεωρούνται «Πελάτες» ακόμη κι αν υπήρξε
+    // παλιά guest order με ίδιο email — δεν είναι εγγεγραμμένος πελάτης.
+    return !c._newsletterOnly && n > 0;
   }
-  // Newsletter μόνο = εγγραφές χωρίς account + customers με newsletter αλλά καμία παραγγελία
-  const newsletterOnly = custNewsletterNoOrders + _newsletterOnlyCache.length;
-  const all = list.length + _newsletterOnlyCache.length;
+  if(tab === 'newsletter-only'){
+    // 1) όσοι έγραψαν email στο newsletter form χωρίς account
+    if(c._newsletterOnly) return true;
+    // 2) εγγεγραμμένοι customers με newsletter=true και 0 παραγγελίες
+    return !!c.newsletter && n === 0;
+  }
+  return true;
+}
+
+function updateCustomersTabCounts(combined){
+  const all = combined.length;
+  const buyers = combined.filter(c => tabMatches(c, 'buyers')).length;
+  const newsletterOnly = combined.filter(c => tabMatches(c, 'newsletter-only')).length;
   const elAll = document.getElementById('custCountAll');
   const elBuy = document.getElementById('custCountBuyers');
   const elNew = document.getElementById('custCountNewsletter');
@@ -102,20 +115,11 @@ function renderCustomers(list, query){
   const tbody = document.querySelector('#customersTable tbody');
   if(!tbody) return;
 
-  updateCustomersTabCounts(list);
+  // Πάντα δουλεύουμε με customers + newsletter-only synthetics στο ίδιο dataset.
+  const combined = list.concat(_newsletterOnlyCache);
+  updateCustomersTabCounts(combined);
 
-  // Newsletter-only synthetics: φαίνονται στο tab "Όλοι" και στο "Newsletter μόνο"
-  const withSynthetics = (_customersTab === 'buyers')
-    ? list
-    : list.concat(_newsletterOnlyCache);
-
-  const tabFiltered = withSynthetics.filter(c => {
-    if(_customersTab === 'all') return true;
-    const n = ordersCountFor(c);
-    if(_customersTab === 'buyers') return n > 0;
-    if(_customersTab === 'newsletter-only') return c.newsletter && n === 0;
-    return true;
-  });
+  const tabFiltered = combined.filter(c => tabMatches(c, _customersTab));
 
   const q = (query || '').trim().toLowerCase();
   const filtered = q
