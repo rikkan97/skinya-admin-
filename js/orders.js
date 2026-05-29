@@ -113,6 +113,27 @@ function renderOrderModal(o){
     [addr.postcode, addr.city, addr.region, addr.country].filter(Boolean).join(' · ')
   ].filter(Boolean).join('\n');
 
+  // Τρόπος αποστολής που διάλεξε ο πελάτης (Box Now vs Γενική Ταχυδρομική).
+  // Το shipping_method είναι μέσα στο shipping_address JSON. Για Box Now υπάρχει
+  // και επιλεγμένο locker (boxnow_locker = JSON string με id/name/address/postcode).
+  const shipMethod = addr.shipping_method || '';
+  let boxnowLocker = null;
+  if(addr.boxnow_locker){
+    try { boxnowLocker = JSON.parse(addr.boxnow_locker); } catch(_){}
+  }
+  const shipMethodLabel = shipMethod === 'box_now'
+    ? 'Box Now (παραλαβή από locker)'
+    : shipMethod === 'elta_courier'
+      ? 'Γενική Ταχυδρομική (κατ\' οίκον)'
+      : (shipMethod || '—');
+  const lockerHtml = boxnowLocker
+    ? `<div style="margin-top:.5rem;padding:.55rem .75rem;background:rgba(212,164,92,0.08);border-left:2px solid var(--gold);border-radius:4px">
+         <small style="color:var(--accent);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase">Επιλεγμένο locker</small>
+         <strong style="display:block;color:var(--text);font-size:.88rem;margin-top:.2rem">${escapeHTML(boxnowLocker.name || ('BOX ' + (boxnowLocker.id||'')))}</strong>
+         <span style="color:var(--text-dim);font-size:.75rem">${escapeHTML([boxnowLocker.address, boxnowLocker.postcode].filter(Boolean).join(' · ') || '—')}</span>
+       </div>`
+    : '';
+
   const itemsHtml = (o.items||[]).map(it => {
     const snap = it.product_snapshot || {};
     return `
@@ -161,6 +182,11 @@ function renderOrderModal(o){
               ? ' <span class="guest-tag" style="background:rgba(76,175,122,0.18);color:var(--success)">Πληρωμένη</span>'
               : ' <span class="guest-tag" style="background:rgba(212,164,92,0.16);color:var(--warn)">Σε αναμονή πληρωμής</span>'}</p>
         ${!o.paid_at ? `<button type="button" class="btn-primary" style="margin-top:.6rem;width:100%" onclick="confirmPayment('${o.id}')"><span>Επιβεβαίωση πληρωμής</span></button>` : ''}
+      </div>
+      <div>
+        <small>Τρόπος αποστολής</small>
+        <p>${escapeHTML(shipMethodLabel)}</p>
+        ${lockerHtml}
       </div>
       ${o.notes ? `<div style="grid-column:1/-1"><small>Σημειώσεις</small><p>${escapeHTML(o.notes)}</p></div>` : ''}
       ${o.viva_order_code ? `<div><small>Viva ref</small><p>${escapeHTML(o.viva_order_code)}</p></div>` : ''}
